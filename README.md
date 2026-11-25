@@ -13,24 +13,29 @@ Sockets Links.
 ```
 import socket
 
-HOST = '127.0.0.1'  
-PORT = 65432        
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-    server_socket.bind((HOST, PORT))
-    server_socket.listen()
+server.bind(('localhost', 8000))
+server.listen(1)
 
-    print(f"Server is listening on {HOST}:{PORT}")
-    while True:
-        conn, addr = server_socket.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                conn.sendall(data)
-                print(f"Echoed: {data.decode('utf-8')}")
+print("Server is waiting for client...")
+
+conn, addr = server.accept()
+print("Connected to:", addr)
+
+while True:
+    data = conn.recv(1024).decode()
+
+    if not data:
+        break
+
+    print("Client:", data)
+
+    conn.send(data.encode())
+
+conn.close()
+server.close()
+
 ```
 
 ### CLIENT:
@@ -38,28 +43,30 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
 
 import socket
 
-HOST = '127.0.0.1'  
-PORT = 65432  
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-    client_socket.connect((HOST, PORT))
+client.connect(('localhost', 8000))
 
-    message = 'Hello, Server!'
-    client_socket.sendall(message.encode('utf-8'))
+while True:
+    msg = input("Enter message: ")
 
-    data = client_socket.recv(1024)
-    print(f"Received echo: {data.decode('utf-8')}")
+    if msg.lower() == 'exit':
+        break
+
+    client.send(msg.encode())
+
+    data = client.recv(1024).decode()
+
+    print("Echo from Server:", data)
+
+client.close()
 
 ```
 ## OUPUT
 
-### SERVER:
+### CLIENT & SERVER:
 
-<img width="932" height="218" alt="image" src="https://github.com/user-attachments/assets/ccf59e4b-a50a-4944-9e9b-119507a28c05" />
-
-### CLIENT:
-
-<img width="932" height="197" alt="image" src="https://github.com/user-attachments/assets/b49107e7-1b97-4821-8be0-42deb55d2986" />
+<img width="1320" height="365" alt="image" src="https://github.com/user-attachments/assets/1ea3100f-a5a6-41dd-8fbb-30698bcadb41" />
 
 
 ## RESULT
